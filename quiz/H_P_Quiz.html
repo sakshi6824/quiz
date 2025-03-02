@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harry Potter Quiz</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Centering the quiz container */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+            background-color: #f0f0f0;
+        }
+
+        /* Quiz container style */
+        .quiz-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: left;
+            border: 2px solid #ccc;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        /* Styling for question and options */
+        .question {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        .question h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .options input {
+            margin-right: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            font-size: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="quiz-container">
+        <h1>Harry Potter Quiz</h1>
+        <div id="question-container"></div>
+        <div class="buttons">
+            <button id="previous-button" onclick="previousQuestion()" style="display: none;">Previous</button>
+            <button id="next-button" onclick="nextQuestion()">Next</button>
+        </div>
+        <div id="result-container" class="result-container"></div>
+    </div>
+</div>
+
+<script>
+    const quizQuestions = [
+        {
+            question: "Who is Harry Potter's best friend?",
+            options: ["Ron Weasley", "Hermione Granger", "Neville Longbottom", "Luna Lovegood"],
+            answer: "Ron Weasley"
+        },
+        {
+            question: "What is the name of Harry Potter's owl?",
+            options: ["Hedwig", "Errol", "Pigwidgeon", "Fawkes"],
+            answer: "Hedwig"
+        },
+        {
+            question: "Who was the headmaster of Hogwarts during Harry's first year?",
+            options: ["Dumbledore", "McGonagall", "Snape", "Flitwick"],
+            answer: "Dumbledore"
+        },
+        {
+            question: "Which house does Harry belong to?",
+            options: ["Gryffindor", "Slytherin", "Ravenclaw", "Hufflepuff"],
+            answer: "Gryffindor"
+        },
+        {
+            question: "What is the name of Harry's aunt and uncle?",
+            options: ["Dursleys", "Malfoys", "Weasleys", "Grangers"],
+            answer: "Dursleys"
+        },
+        {
+            question: "What is the name of the dark wizard who killed Harry's parents?",
+            options: ["Voldemort", "Lucius Malfoy", "Bellatrix Lestrange", "Fenrir Greyback"],
+            answer: "Voldemort"
+        },
+        {
+            question: "What magical creature pulls the Hogwarts carriages?",
+            options: ["Thestrals", "Hippogriffs", "Dragons", "House-elves"],
+            answer: "Thestrals"
+        },
+        {
+            question: "Which spell is used to levitate objects?",
+            options: ["Wingardium Leviosa", "Lumos", "Expecto Patronum", "Avada Kedavra"],
+            answer: "Wingardium Leviosa"
+        },
+        {
+            question: "Who becomes the Defense Against the Dark Arts teacher in Harry's third year?",
+            options: ["Remus Lupin", "Dolores Umbridge", "Severus Snape", "Gilderoy Lockhart"],
+            answer: "Remus Lupin"
+        },
+        {
+            question: "What is the name of the Weasley twins' joke shop?",
+            options: ["Weasleys' Wizard Wheezes", "The Joke Shop", "Fred and George's", "The Laughing Cauldron"],
+            answer: "Weasleys' Wizard Wheezes"
+        },
+        {
+            question: "What is the name of Harry's broomstick?",
+            options: ["Nimbus 2000", "Firebolt", "Cleansweep 7", "Comet 290"],
+            answer: "Nimbus 2000"
+        },
+        {
+            question: "Who is the Half-Blood Prince?",
+            options: ["Severus Snape", "Tom Riddle", "Draco Malfoy", "Lucius Malfoy"],
+            answer: "Severus Snape"
+        },
+       
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let answers = [];
+
+    function displayQuestions() {
+        const questionContainer = document.getElementById("question-container");
+        const resultContainer = document.getElementById("result-container");
+        const currentPageQuestions = quizQuestions.slice(currentQuestionIndex, currentQuestionIndex + 4);
+
+        questionContainer.innerHTML = '';
+
+        currentPageQuestions.forEach((question, index) => {
+            questionContainer.innerHTML += `
+                <div class="question">
+                    <h3>${question.question}</h3>
+                    <div class="options">
+                        ${question.options.map(option => `
+                            <div>
+                                <input type="radio" name="answer${index}" value="${option}" id="${option}">
+                                <label for="${option}">${option}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+
+        resultContainer.innerHTML = '';
+    }
+
+    function nextQuestion() {
+        const currentPageQuestions = quizQuestions.slice(currentQuestionIndex, currentQuestionIndex + 4);
+        let answered = false;
+
+        currentPageQuestions.forEach((question, index) => {
+            const selectedOption = document.querySelector(`input[name="answer${index}"]:checked`);
+            if (selectedOption) {
+                answers[currentQuestionIndex + index] = selectedOption.value;
+                if (answers[currentQuestionIndex + index] === question.answer) {
+                    score++;
+                }
+                answered = true;
+            }
+        });
+
+        if (!answered) {
+            alert("Please answer all questions on this page.");
+            return;
+        }
+
+        currentQuestionIndex += 4;
+
+        if (currentQuestionIndex < quizQuestions.length) {
+            displayQuestions();
+        } else {
+            showResult();
+        }
+    }
+
+    function previousQuestion() {
+        currentQuestionIndex -= 4;
+        displayQuestions();
+    }
+
+    function showResult() {
+        const resultContainer = document.getElementById("result-container");
+        resultContainer.innerHTML = `
+            <h2>Quiz Completed!</h2>
+            <p>You scored ${score} out of ${quizQuestions.length}.</p>
+        `;
+        document.getElementById("question-container").style.display = "none";
+        document.getElementById("next-button").style.display = "none";
+        document.getElementById("previous-button").style.display = "none";
+    }
+
+    // Initialize the quiz
+    displayQuestions();
+</script>
+
+</body>
+</html>
